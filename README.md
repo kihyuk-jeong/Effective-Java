@@ -1,6 +1,7 @@
 <details>
   <summary>아이템1 : 생성자 대신 정적 팩토리 메서드를 고려하라</summary>
   <div markdown="1">
+    
 ### Item 1 : 생성자 대신 정적 팩토리 메서드를 고려하라
 
 - 클래스는 클라이언트에게 public 생성자 대신 static 팩토리 메서드를 제공할 수 있습니다.
