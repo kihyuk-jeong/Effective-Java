@@ -229,7 +229,7 @@ public static void main(String args[]){
   <summary>아이템2 : 생성자에 매개변수가 많다면 빌더를 고려하라</summary>
   <div markdown="1">
     
-    ## Item2. 생성자에 매개변수가 많다면 빌더를 고려하라
+   ## Item2. 생성자에 매개변수가 많다면 빌더를 고려하라
 
 ```java
 public class NutritionFacts {
