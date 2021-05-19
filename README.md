@@ -358,7 +358,7 @@ public class Person {
 </details>
 
 <details>
-  <summary>아이템3 ~ 4 싱글턴 패턴과 private </summary>
+  <summary>아이템3 ~ 4 싱글턴 패턴과 private  </summary>
   <div markdown="1">
     
    ## Item 3 : private 생성자나 열거 타입으로 싱글턴임을 보증하라.
