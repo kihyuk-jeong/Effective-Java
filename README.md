@@ -358,10 +358,10 @@ public class Person {
 </details>
 
 <details>
-  <summary>Item3 ~ 4 싱글턴</summary>
+  <summary>아이템3 ~ 4 싱글턴 패턴과 private </summary>
   <div markdown="1">
     
-    ## Item 3 : private 생성자나 열거 타입으로 싱글턴임을 보증하라.
+   ## Item 3 : private 생성자나 열거 타입으로 싱글턴임을 보증하라.
 
 `싱글턴`이란 인스턴스를 오직 하나만 생성할 수 있는 클래스를 말한다. 싱글턴의 전형적인 예로, 함수와 같은 무상태(stateless) 객체나 설계상 유일해야 하는 시스템(단 하나만 생성되어야 하는 시스템) 컴포넌트를 들 수 있다. 
 
