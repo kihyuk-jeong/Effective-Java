@@ -563,7 +563,7 @@ Mosaic create(Supplier<? extends Tile> tileFactory) { ... }
 
 
 <details>
-  <summaryItem 6 : 불필요한 객체 생성을 피하라</summary>
+  <summary> 6 : 불필요한 객체 생성을 피하라</summary>
   <div markdown="1">
     
    ## Item 6 : 불필요한 객체 생성을 피하라
