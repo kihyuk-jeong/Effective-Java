@@ -493,4 +493,346 @@ public class UtilityClass {
   </div>
 </details>
 
+<details>
+  <summary>Item 5 : 자원을 직접 명시하지 말고 의존 객체 주입을 사용하라</summary>
+  <div markdown="1">
+   
+   ## Item 5 : 자원을 직접 명시하지 말고 의존 객체 주입을 사용하라
+
+많은 클래스가 하나 이상의 자원에 의존한다. 가령 맞춤법 검사기는 사전에 의존하는데, 이런 클래스를 **정적 유틸 클래스**로 구현한 모습은 드물지 않게 볼 수 있다.
+
+```java
+// 정적 유틸리티 - 잘못된 예
+public class SpellChecker {
+   private static final Lexicon dictionary = new Lexicon(); // 특정 자원을 명시
+   
+   private SpellChecker() {} // 인스턴스화 방지 - 아이템 4
+   
+   // ...생략...
+}
+```
+
+```java
+// 싱글턴 - 잘못된 예
+public class SpellChecker {
+   private final Lexicon dictionary = new Lexicon(); // 특정 자원을 명시
+
+   private SpellChecker() {} // 싱글턴 보증 - 아이템 3
+   public static SpellChecker INSTANCE = new SpellChecker();
+   
+   // ...생략...
+}
+```
+
+위 두가지 예 모두 사전을 단 하나만 사용한다고 가정한다는 점에서 그리 훌륭해 보이지는 않는다. (확장에 닫혀있다 = OCP 원칙 위반)
+
+실전에서는 사전이 언어별로 따로 있고 특수 어휘용 사전을 별도로 두기도 한다. 심지어 테스트용 사전도 필요할 수 있다. 사전 하나로 이 모든 쓰임에 대응할 수 있기를 바라는건 너무 순진한 생각이다. 
+
+`final` 키워드를 삭제하고 `setter` 메서드 등을 통해 사전을 그때그때 교체하는 방법도 생각해 볼 수 있지만, 어색하고, 오류를 내기 쉬우며, 멀티 스레드에서는 사용할 수 없다.
+**사용하는 자원에 따라 동작이 달라지는 클래스에는 정적 유틸리티 클래스나 싱글턴 방식이 적합하지 않다.** 이 경우에는 직접 의존 객체를 주입받는 방식을 사용하자.
+
+```java
+// 의존 객체 주입 방식
+public class SpellChecker {
+   private final Lexicon dictionary; // 특정 자원을 명시하지 않음
+   
+   private SpellChecker(Lexicon dictionary) {
+      this.dictionary = Objects.requireNonNull(dictionary);
+   } // 의존성 주입
+   
+   // ...생략...
+}
+```
+
+이 클래스를 사용하는 클라이언트는 상황에 맞는 사전을 생성자를 통해 주입하기만 하면 된다. 또한 불변을 보장하며, 같은 자원을 사용하려는 다른 클라이언트들과 안심하고 객체를 공유할 수 있다.
+
+의존성 주입 패턴의 변형으로, 생성자에 자원 *팩토리를 넘겨주는 방식이 있다. 자바 8에서 등장하는 `Supplier<T>` 인터페이스가 팩토리를 표현한 완벽한 예이다.
+
+> *팩토리란 팩토리 메서드 패턴(Factory Method Pattern)[Gamma95]에서 언급하는 형태의 클래스이며, 호출할때마다 특정 타입의 인스턴스를 반복해서 만들어주는 객체를 말한다.
+
+이 방식을 사용하면 클라이언트는 자신이 명시한 타입의 하위 타입이라면 무엇이든 생성할 수 있는 팩토리를 넘길 수 있다. 예컨대 다음 코드는 클라이언트가 제공한 팩토리가 생성하는 타일(`Tile`)을 가지고 모자이크(`Mosaic`)를 만드는 메서드이다.
+
+```java
+Mosaic create(Supplier<? extends Tile> tileFactory) { ... }
+```
+
+사실 이런 의존 객체 주입이 유연성과 테스트 용이성을 개선해 주긴 하지만, 직접적으로 사용하는 경우는 거의 드물다. 의존성이 수천개나 되는 큰 프로젝트에서는 코드를 어지럽게 만들기도 하기 때문이다. 큰 규모의 프로젝트에서는 주로 스프링(Spring)과 같은 의존 객체 주입 프레임워크가 이와 같은 어지러움을 해소해 준다.
+  </div>
+</details>
+
+
+
+<details>
+  <summaryItem 6 : 불필요한 객체 생성을 피하라</summary>
+  <div markdown="1">
+    
+   ## Item 6 : 불필요한 객체 생성을 피하라
+
+같은 기능의 객체를 새로 생성하는 대신, 객체 하나를 재사용하는 편이 나을 때가 많다. 특히, 불변 객체는 언제든 재사용할 수 있다.
+
+### 문자열 재사용
+
+```java
+String s = new String("java");
+String s2 = new String("java");
+System.out.println(s == s2)  // false
+```
+
+위 예제는 항상 새로운 객체들 만들어 heap 메모리 영역 내 String pool 이라는 공간을 활용할 수 없게된다.
+
+```java
+String s = "java";
+String s2 = "java";
+System.out.println(s1 == s2) // true
+```
+
+리터럴 형식으로 String 객체를 생성하면  String pool 이라는 공간 내에서  같은 내용의 String 객체 생성시 동일한 객체(기존의 객체)를 참조하도록 한다. 따라서 메모리를 절약할 수 있다.
+
+
+
+### 무거운 객체
+
+만드는데 메모리나 시간이 오래 걸리는 객체 즉 "비싼 객체"를 반복적으로 만들어야 한다면 캐싱해두고 재사용할 수 있는지 고려하는 것이 좋다.
+
+##### 재사용 빈도가 높고 생성비용이 비싼 경우 - 캐싱하여 재사용 하자.
+
+```java
+static boolean isRomanNumeralSlow(String s) {
+    return s.matches("^(?=.)M*(C[MD]|D?C{0,3})"
+            + "(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$");
+}
+```
+
+이 코드의 문제점은 `String.matches` 메서드를 사용하는데 있다. `String.matches`는 정규표현식으로 문자열 형태를 확인하는 가장 쉬운 방법이지만, 성능이 중요한 상황에서 반복해 사용하기 적합하지 않다.
+이 메서드가 내부에서 만드는 정규 표현식용 `Pattern`인스턴스는 **한 번 쓰고 버려저서 곧바로 가비지 컬렉션 대상이 된다**.
+`Pattern`은 생성비용이 높은 클래스 중 하나이다. 만약 늘 같은 `Pattern`이 필요함이 보장되고 재사용 빈도가 높다면 아래와 같이 상수(`static final`)로 초기에 캐싱해놓고 재사용할 수 있다.
+
+```java
+public class RomanNumerals {
+    private static final Pattern ROMAN = Pattern.compile(
+            "^(?=.)M*(C[MD]|D?C{0,3})"
+                    + "(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$");
+
+    static boolean isRomanNumeralFast(String s) {
+        return ROMAN.matcher(s).matches();
+    }
+}
+```
+
+생성비용이 비싼 객체라면 "캐싱" 방식을 고려해야 한다. 자주 쓰는 값이라면 `static final`로 초기에 캐싱해놓고 재사용 하자.
+
+불변 객체인 경우에 안정하게 재사용하는 것이 매우 명확하다. 하지만 몇몇 경우 분명하지 않다.
+어댑터를 예로 들면, 어댑터는 인터페이스를 통해 뒤에 있는 객체로 연결해주는 view라 여러 개 만들 필요가 없다.
+
+
+
+### 어댑터
+
+##### 같은 인스턴스를 대변하는 여러 개의 인스턴스를 생성하지 말자
+
+```java
+public class MapTest {
+
+    public static void main(String[] args) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("bugger", 1);
+        map.put("pizza", 2);
+
+        Set<String> set1 = map.keySet();
+        Set<String> set2 = map.keySet();
+
+        System.out.println("set1 삭제 전 : " +  set2.size());
+        System.out.println("set1 삭제 전 : " + map.size());
+
+        set1.remove("bugger");
+
+        System.out.println("set1 삭제 후 : " + set2.size());
+        System.out.println("set1 삭제 후 : " + map.size());
+    }
+}
+```
+
+Map 인터페이스의 `keySet` 메서드는 Map 객체 안의 키 전부를 담은 `Set` 인터페이스의 뷰를 반환한다.
+하지만, 동일한 Map에서 호출하는 `keySet` 메서드는 같은 Map을 대변하기 때문에 반환한 객체 중 하나를 수정하면 다른 모든 객체가 따라서 바뀐다. 
+
+따라서 `keySet`이 뷰 객체 여러 개를 만들 필요도 없고 이득도 없다.
+
+### 오토박싱
+
+##### 의도치않은 오토박싱이 숨어들지 않도록 주의하자
+
+```java
+private static long sum() {
+	Long sum = 0L;
+	for(long i=0; i<=Integer.MAX_VALUE; i++) {
+		sum += i;
+	}
+	return sum;
+}
+```
+
+오토박싱은 기본 타입과 박싱된 기본 타입을 섞어 쓸 때 자동으로 상호 변환해주는 기술이다.
+의미상으로는 별다를 것 없지만 성능에서는 그렇지 않다.
+
+sum 변수를 프리미티브 타입인 `long` 대신 래퍼클래스인 `Long`으로 선언해서, 2^31승개나 Long 인스턴스가 생성된다.  (`long` 타입인 `i`가 `Long` 타입인 `sum` 인스턴스에 더해질 때마다)
+
+**박싱된 기본 타입보다는 기본 타입을 사용하고, 의도치 않은 오토박싱이 숨어들지 않도록 주의하자.**
+
+
+
+### 오해 금지
+
+"객체 생성은 비싸니 피해야 한다"로 오해하면 안 된다.
+
+특히나 요즘의 JVM에서는 별다른 일을 하지 않는 작은 객체를 생성하고 회수하는 일이 크게 부담되지 않는다.
+프로그램의 명확성, 간결성, 기능을 위해 객체를 추가로 생성하는 것이라면 일반적으로 좋은 일이다.
+
+-> 이 말은 즉슨, 작은 성능을 위해 코드의 최적화를 포기하지 말자 라는 뜻으로 해석할 수 있다고 생각한다..(내 객관적인 의견)
+  </div>
+</details>
+
+
+<details>
+  <summary>Item 7 : 다 쓴 객체 참조를 해제하라 (메모리 누수 방지하기)</summary>
+  <div markdown="1">
+    
+   ##  아이템 7. 다 쓴 객체 참조를 해제하라
+
+### 메모리 직접 관리, 메모리 누수의 주범
+
+자바에 GC(가비지 콜렉터)가 있기 때문에, GC가 다 쓴 객체를 알아서 회수해간다고 해서 메모리 관리에 더 이상 신경쓰지 않아도 된다는 것은 오해다.
+
+아래 Stack을 사용하는 프로그램을 오래 실행하다 보면 점차 GC 활동과 메모리 사용량이 늘어나 결국 성능이 저하될 것이다.
+
+과연 메모리 누수가 일어나는 위치는 어디일까?
+
+```java
+public class Stack {
+    private Object[] elements;
+    private int size = 0;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+
+    public Stack() {
+        elements = new Object[DEFAULT_INITIAL_CAPACITY];
+    }
+
+    public void push(Object e) {
+        ensureCapacity();
+        elements[size++] = e;
+    }
+
+    public Object pop() {
+        if (size == 0)
+            throw new EmptyStackException();
+        return elements[--size]; //메모리 누수가 일어나는 공간
+    }
+
+    /**
+     * 원소를 위한 공간을 적어도 하나 이상 확보한다.
+     * 배열 크기를 늘려야 할 때마다 대략 두 배씩 늘린다.
+     */
+    private void ensureCapacity() {
+        if (elements.length == size)
+            elements = Arrays.copyOf(elements, 2 * size + 1);
+    }
+}
+```
+
+메모리 누수가 일어나는 공간은 바로 **return elements[--size]** 부분이다. 그 이유는 --size를 실행함으로써 size라는 위치에 저장되어있는 배열은 더이상 쓰이지 않는 객체가 되었다. 이후 push가 실행되더라도 새로운 Object를 할당받기 때문에 해당 객체는 **가비지 컬렉터가 참조하지도 못하는** 메모리 누수의 주범이 된다.
+
+해결책은 간단하다.
+
+```java
+public Object pop() {
+    if (size == 0)
+        throw new EmptyStackException();
+    Object result = elements[--size];
+    elements[size] = null; // 다 쓴 참조 해제
+    return result;
+}
+```
+
+ 해당 원소의 참조가 더이상 필요 없어지는 시점(Stack에서 꺼낼 때, 사용이 완료됨)에 `null`로 설정하여 다음 GC가 발생할 때 레퍼런스가 정리되게 한다. 만약 `null` 처리한 참조를 실수로 사용하려 할 때 프로그램이 `NullPointerException`을 던지며 종료할 수 있다. (그 자리에 있는 객체를 비우지 않고 실수로 잘못된 객체를 돌려주는 것보다는 차라리 괜찮다. `null` 처리 하지 않았다면 잘못된 일을 수행할 것이다.)
+
+**→ 프로그래머는 비활성 영역이 되는 순간 `null` 처리해서 해당 객체를 더는 쓰지 않을 것임을 가비지 컬렉터에게 알려야 한다.**
+
+
+
+### 객체 참조를 `null` 처리하는 일은 예외적이어야 한다.
+
+그렇다고 필요 없는 객체를 볼 때마다 `null` 처리하면, 오히려 프로그램을 필요 이상으로 지저분하게 만든다.
+**객체 참조를 `null` 처리하는 일은 예외적인 상황에서나 하는 것이지 평범한 일이 아니다.**
+
+필요없는 객체 레퍼런스를 정리하는 최선책은 그 레퍼런스를 가리키는 변수를 특정한 범위(scope)안에서만 사용하는 것이다. 변수의 범위를 가능한 최소가 되게 정의했다면(item 57) 이 일은 자연스럽게 이뤄진다.
+
+```java
+Object pop() {
+
+	Object age = 24;
+
+	...
+
+	age = null; // X
+}
+```
+
+`Object age`는 scope이 `pop()`안에서만 형성되어 있으므로 scope 밖으로 나가면 무의미한 레퍼런스 변수가 되기 때문에 GC에 의해 정리가 된다. (굳이 `null` 처리 하지 않아도 됨)
+
+### 언제 레퍼런스를 `null` 처리 해야 하는가?
+
+**메모리를 직접 관리하는 클래스는 메모리 누수를 조심해야 한다.**
+
+**메모리를 직접 관리할 때**, `Stack` 구현체처럼 `elements`라는 배열을 관리하는 경우에 GC는 어떤 객체가 필요 없는 객체인지 알 수 없으므로, 해당 레퍼런스를 `null`로 만들어 GC한테 필요없는 객체들이라고 알려줘야 한다.
+
+### 캐시, 메모리 누수의 주범 (Map 사용시 주의사항)
+
+캐시를 사용할 때도 메모리 누수 문제를 조심해야 한다. 객체의 레퍼런스를 캐시에 넣어 놓고, 캐시를 비우는 것을 잊기 쉽다. 여러 가지 해결책이 있지만, **캐시의 키**에 대한 레퍼런스가 캐시 밖에서 필요 없어지면 해당 엔트리를 캐시에서 자동으로 비워주는 `WeakHashMap`을 쓸 수 있다.
+
+**캐시 구현의 안 좋은 예 - 객체를 다 쓴 뒤로도 key를 정리하지 않음.**
+
+```java
+public class CacheSample {
+	public static void main(String[] args) {
+		Object key = new Object();
+		Object value = new Object();
+
+		Map<Object, List> cache = new HashMap<>();
+		cache.put(key, value);
+		...
+	}
+}
+```
+
+key의 사용이 없어지더라도 `cache`가 key의 레퍼런스를 가지고 있으므로, GC의 대상이 될 수 없다.
+
+**해결 - `WeakHashMap`**
+
+캐시 외부에서 key를참조하는 동안만 엔트리가 살아있는 캐시가 필요하다면 `WeakHashMap`을 이용한다.
+다 쓴 엔트리는 그 즉시 자동으로 제거된다. 단, `WeakHashMap`은 이런 상황에서만 유용하다.
+
+```java
+public class CacheSample {
+	public static void main(String[] args) {
+		Object key = new Object();
+		Object value = new Object();
+
+		Map<Object, List> cache = new WeakHashMap<>();
+		cache.put(key, value);
+		...
+	}
+}
+```
+
+캐시 값이 무의미해진다면 자동으로 처리해주는 `WeakHashMap`은 key 값을 모두 Weak 레퍼런스로 감싸 hard reference가 없어지면 GC의 대상이 된다.
+
+즉, `WeakHashMap`을 사용할 때 key 레퍼런스가 쓸모 없어졌다면, (key - value) 엔트리를 GC의 대상이 되도록해 캐시에서 자동으로 비워준다.
+
+
+
+### 결론
+
+메모리 누수는 겉으로 잘 드러나지 않아 시스템에 수년간 잠복하는 사례도 있다. 이런 누수는 철저한 코드 리뷰나 힙 프로파일러 같은 디버깅 도구를 동원해야만 발견되기도 한다. 그래서 이런 종류의 문제는 예방법을 익혀두는 것이 매우 중요하다.
+  </div>
+</details>
+
 
