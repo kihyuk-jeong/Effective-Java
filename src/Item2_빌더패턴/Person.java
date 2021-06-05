@@ -45,5 +45,4 @@ public class Person {
         birth = builder.birth;
         isStudent = builder.isStudent;
     }
-
 }
