@@ -1,4 +1,4 @@
-package Item3_싱글턴;
+package 이펙티브자바.Item3_싱글턴;
 
 public class Singleton1 {
 

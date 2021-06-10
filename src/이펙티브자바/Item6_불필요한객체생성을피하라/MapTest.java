@@ -1,4 +1,4 @@
-package Item6_불필요한객체생성을피하라;
+package 이펙티브자바.Item6_불필요한객체생성을피하라;
 
 import java.util.HashMap;
 import java.util.Map;

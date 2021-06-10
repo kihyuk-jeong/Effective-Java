@@ -1,6 +1,4 @@
-package Item3_싱글턴;
-
-import Item1_정적팩토리메서드.Singleton;
+package 이펙티브자바.Item3_싱글턴;
 
 public class SingletonTest {
 

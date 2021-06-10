@@ -1,4 +1,4 @@
-package Item1_정적팩토리메서드;
+package 이펙티브자바.Item1_정적팩토리메서드;
 
 public interface Item {
 
