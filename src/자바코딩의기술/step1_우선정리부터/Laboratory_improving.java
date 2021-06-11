@@ -19,5 +19,4 @@ public class Laboratory_improving {
             return Result.ALIEN;
         }
     }
-
 }
