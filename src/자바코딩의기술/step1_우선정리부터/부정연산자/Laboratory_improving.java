@@ -1,4 +1,4 @@
-package 자바코딩의기술.step1_우선정리부터;
+package 자바코딩의기술.step1_우선정리부터.부정연산자;
 
 public class Laboratory_improving {
 
