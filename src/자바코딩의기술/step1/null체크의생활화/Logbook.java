@@ -1,4 +1,4 @@
-package 자바코딩의기술.step1_우선정리부터.null체크의생활화;
+package 자바코딩의기술.step1.null체크의생활화;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

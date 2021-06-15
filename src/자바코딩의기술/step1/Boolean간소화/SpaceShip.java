@@ -1,4 +1,4 @@
-package 자바코딩의기술.step1_우선정리부터.Boolean간소화;
+package 자바코딩의기술.step1.Boolean간소화;
 
 /**
  * 기존에 복잡했던 'willCrewSurvice()' 메소드의 조건식을 간단하게 변경하기
