@@ -7,12 +7,13 @@ import java.util.regex.Pattern;
 import 자바코딩의기술.step2.순회하며컬렉션수정하지않기.Supply;
 
 class Inventory {
+
     private List<Supply> supplies = new ArrayList<>();
 
     List<Supply> find(String regex) {
         List<Supply> result = new LinkedList<>();
         for (Supply supply : supplies) {
-            if(Pattern.matches(regex, supply.toString())) {
+            if (Pattern.matches(regex, supply.toString())) {
                 result.add(supply);
             }
         }
@@ -21,13 +22,14 @@ class Inventory {
 }
 
 class Inventory_improving {
+
     private List<Supply> supplies = new ArrayList<>();
 
     List<Supply> find(String regex) {
         List<Supply> result = new LinkedList<>();
         Pattern pattern = Pattern.compile(regex);
-        for(Supply supply : supplies) {
-            if(pattern.matcher(supply.toString().matches())) {
+        for (Supply supply : supplies) {
+            if (pattern.matcher(supply.toString()).matches()) {
                 result.add(supply);
             }
         }
