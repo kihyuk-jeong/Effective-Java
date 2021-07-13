@@ -34,6 +34,7 @@ class Usage {
 
 /**
  * format 메소드 사용 결과 매우 간결한 코드로!
+ * ChronoUnit : 시간 차 구할때 많이 쓰이는 클래스
  */
 
 class Mission_improving {
