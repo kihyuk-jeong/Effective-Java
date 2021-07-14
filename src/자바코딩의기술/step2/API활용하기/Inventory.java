@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import 자바코딩의기술.step2.순회하며컬렉션수정하지않기.Supply;
 
+ // java API를 잘 활용하자.
+
 class Inventory {
 
     private List<Supply> supplies = new ArrayList<>();
@@ -28,7 +30,6 @@ class Inventory {
 }
 
 /**
- * java API를 활용하자는 취지
  * frequency : frequency(여기에, 이게 몇개나 들어있을까)  결과를 리턴한다. (int형)
  * requireNonNull : requireNonNull(이 객체가 null 이면 ? , 예외와 함께 예외 메시지 출력) 예외는 NPE
  * java API를 활용하면 위 코드를 단 3줄로 처리가 가능하다.
