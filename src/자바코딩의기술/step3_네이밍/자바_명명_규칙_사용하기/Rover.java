@@ -17,5 +17,29 @@ public class Rover {
     void stop() {
         MilesPerHour = 0;
     }
-
 }
+
+/**
+ * 상수 : CAPITAL_SNAKE_CASE
+ * 메소드 : is, has, save , get , set 등의 동사로 시작
+ * 변수 : 항상 소문자로 시작
+ */
+
+//class Rover_improving {
+//    static final double WALKING_SPEED = 3;
+//
+//    final String serialNumber;
+//    double milesPerHour;
+//
+//    Rover(String serialNumber) {
+//        this.serialNumber = serialNumber;
+//    }
+//
+//    void drive() {
+//        milesPerHour = WALKING_SPEED;
+//    }
+//
+//    void stop() {
+//        milesPerHour = 0;
+//    }
+//}
